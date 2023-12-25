@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -11,12 +11,14 @@ import {
   format,
 } from "date-fns";
 import Day from "./Day";
+import { EventContext, EventType } from "../ts/types";
 
 // import { Color } from "../types/types";
-
+export const Events = createContext<EventContext | null>(null);
 
 export default function Calendar() {
   const [date, setDate] = useState<Date | null>(new Date());
+  const [events, setEvents] = useState<EventType[] | null>([]);
   const days = useMemo(
     () =>
       eachDayOfInterval({
@@ -52,19 +54,25 @@ export default function Calendar() {
           </span>
         </div>
 
-        <div className="days">
-          {days.map((day) => (
-            <Day
-              key={day.getTime()}
-              id={day.getTime()}
-              isToday={isToday(day as Date)}
-              weekName={format(day, "iii")}
-              dayNumber={day.getDate()}
-              sameMonth={isSameMonth(day, date as Date)}
-              currentDate={day}
-            />
-          ))}
-        </div>
+        <Events.Provider value={{ events, setEvents }}>
+          <div className="days">
+            {days.map((day, index) => (
+              <Day
+                day={day}
+                key={day.getTime()}
+                id={day.getTime()}
+                isToday={isToday(day as Date)}
+                weekName={index < 7}
+                dayNumber={day.getDate()}
+                sameMonth={isSameMonth(day, date as Date)}
+                currentDate={day}
+                allEvents={events!.filter(
+                  (ev) => ev.currentDate?.getTime() === day.getTime()
+                )}
+              />
+            ))}
+          </div>
+        </Events.Provider>
       </div>
     </>
   );

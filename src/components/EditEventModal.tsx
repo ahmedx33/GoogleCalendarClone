@@ -1,80 +1,79 @@
 import { createPortal } from "react-dom";
-import { EventType, ModalType } from "../ts/types";
+import { Color, EditEventType, EventType } from "../ts/types";
+import { MouseEvent, useRef, useState } from "react";
 import { format } from "date-fns";
 import useEvents from "../hooks/useEvents.hooks";
-import React, { useRef, useState } from "react";
 
-export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
+export default function EditEventModal({
+  id,
+  name,
+  startTime,
+  endTime,
+  color,
+  allDay,
+  IsOpen,
+  currentDate,
+  setIsOpen,
+}: EditEventType) {
+  const [check, setCheck] = useState<boolean>(allDay);
   const { setEvents } = useEvents();
-  const [color, setColor] = useState<string>("blue");
-  const [allDay, setAllDay] = useState<boolean>(false);
+  const [newColor, setNewColor] = useState<Color | null>(color);
   const inputRef = useRef<HTMLInputElement>(null);
-  const startTime = useRef<HTMLInputElement>(null);
-  const endTime = useRef<HTMLInputElement>(null);
 
-  const startH = startTime.current?.value;
-  const endH = endTime.current?.value;
-
-  function eventHandler(ev: React.MouseEvent<HTMLButtonElement>) {
+  function editEventHandler(ev: MouseEvent<HTMLButtonElement>) {
     ev.preventDefault();
-    const [startHour, startMin]: string[] = startTime.current?.value.split(
-      ":"
-    ) as string[];
-    const [endHour, endMin]: string[] = endTime.current?.value.split(
-      ":"
-    ) as string[];
-    if (inputRef.current?.value === "") return;
+    const eventDate: EventType = {
+      id,
+      name: inputRef.current?.value as string,
+      allDay: check,
+      color: newColor,
+      currentDate,
+      startTime,
+      endTime,
+    };
+    setEvents((ev) =>
+      ev!.map((event) => (event.id === id ? eventDate : event))
+    );
 
-    if (inputRef.current && inputRef.current.value !== null) {
-      if (startHour > endHour || (startHour === endHour && startMin > endMin)) {
-        return;
-      }
+    setIsOpen(false);
+  }
 
-      setEvents(
-        (prev) =>
-          prev &&
-          ([
-            ...prev,
-            {
-              id: Date.now(),
-              name: inputRef.current!.value,
-              startTime: startHour,
-              endTime: endHour,
-              color,
-              allDay,
-              currentDate,
-              setColor,
-            },
-          ] as EventType[])
-      );
-    }
-
+  function deletEventHanlder() {
+    setEvents((event) => event!.filter((ev) => ev.id !== id));
     setIsOpen(false);
   }
 
   return createPortal(
     <>
-      <div className={`modal ${isOpen ? "" : "closing"}`}>
+      <div className={`modal ${IsOpen ? "" : "closing"}`}>
+        <div className="overlay"></div>
         <div className="overlay"></div>
         <div className="modal-body">
           <div className="modal-title">
-            <div>Add Event</div>
+            <div>Edit Event</div>
             <small>{format(currentDate as Date, "d/MM/yyyy")}</small>
-            <button className="close-btn" onClick={() => setIsOpen(false)}>
+            <button className="close-btn" onClick={() => setIsOpen!(false)}>
               &times;
             </button>
           </div>
           <form>
             <div className="form-group">
               <label htmlFor="name">Name</label>
-              <input ref={inputRef} type="text" name="name" />
+              <input
+                ref={inputRef}
+                type="text"
+                name="name"
+                id="name"
+                defaultValue={name}
+              />
             </div>
             <div className="form-group checkbox">
               <input
                 type="checkbox"
-                onChange={(ev) => setAllDay(ev.currentTarget.checked)}
                 name="all-day"
                 id="all-day"
+                onChange={(ev) => setCheck!(ev.currentTarget.checked)}
+                defaultChecked={allDay}
               />
               <label htmlFor="all-day">All Day?</label>
             </div>
@@ -82,9 +81,8 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
               <div className="form-group">
                 <label htmlFor="start-time">Start Time</label>
                 <input
-                  disabled={allDay}
-                  defaultValue={startH}
-                  ref={startTime}
+                  disabled={check}
+                  defaultValue={startTime}
                   type="time"
                   name="start-time"
                   id="start-time"
@@ -93,9 +91,8 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
               <div className="form-group">
                 <label htmlFor="end-time">End Time</label>
                 <input
-                  disabled={allDay}
-                  defaultValue={endH}
-                  ref={endTime}
+                  disabled={check}
+                  defaultValue={endTime}
                   type="time"
                   name="end-time"
                   id="end-time"
@@ -110,9 +107,9 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
                   name="color"
                   value="blue"
                   id="blue"
-                  defaultChecked
                   className="color-radio"
-                  onClick={(ev) => setColor(ev.currentTarget.value)}
+                  onClick={(ev) => setNewColor(ev.currentTarget.value as Color)}
+                  defaultChecked={color === "blue" ? true : false}
                 />
                 <label htmlFor="blue">
                   <span className="sr-only">Blue</span>
@@ -123,7 +120,8 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
                   value="red"
                   id="red"
                   className="color-radio"
-                  onClick={(ev) => setColor(ev.currentTarget.value)}
+                  onClick={(ev) => setNewColor(ev.currentTarget.value as Color)}
+                  defaultChecked={color === "red" ? true : false}
                 />
                 <label htmlFor="red">
                   <span className="sr-only">Red</span>
@@ -134,7 +132,8 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
                   value="green"
                   id="green"
                   className="color-radio"
-                  onClick={(ev) => setColor(ev.currentTarget.value)}
+                  onClick={(ev) => setNewColor(ev.currentTarget.value as Color)}
+                  defaultChecked={color === "green" ? true : false}
                 />
                 <label htmlFor="green">
                   <span className="sr-only">Green</span>
@@ -145,9 +144,16 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
               <button
                 className="btn btn-success"
                 type="submit"
-                onClick={eventHandler}
+                onClick={editEventHandler}
               >
-                Add
+                Edit
+              </button>
+              <button
+                className="btn btn-delete"
+                type="button"
+                onClick={deletEventHanlder}
+              >
+                Delete
               </button>
             </div>
           </form>

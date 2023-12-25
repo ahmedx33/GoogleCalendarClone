@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { Events } from "../components/Day"
+import { Events } from "../components/Calendar"
 
 export default function useEvents() {
     const events = useContext(Events)
