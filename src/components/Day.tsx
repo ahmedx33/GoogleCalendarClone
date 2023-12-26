@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { DayType, EventType } from "../ts/types";
+import { DayType } from "../ts/types";
 import Modal from "./Modal";
 import DayEvent from "./DayEvent";
 import dateFormat from "../utils/dateFormat";
@@ -15,16 +15,36 @@ export default function Day({
   allEvents,
 }: DayType) {
   const [IsOpen, setIsOpen] = useState<boolean>(false);
-  const eventsOverflow = useRef<HTMLDivElement>(null);
-  const [childLength, setChildLength] = useState<number>();
-  const [hiddenEvents, setHiddenEvents] = useState<EventType[] | null>();
   const [showMore, setShowMore] = useState<boolean>(false);
-  const amount = childLength && childLength - 2;
+  const [showMoreButton, setShowMoreButton] = useState<boolean>(false);
+  const amount = allEvents?.length;
+
+  const eventsContainer = useRef<HTMLDivElement>(null);
+
+  const checkOverflow = () => {
+    if (eventsContainer.current) {
+      const isOverflowing =
+        eventsContainer.current.scrollHeight >
+        eventsContainer.current.clientHeight;
+      setShowMoreButton(isOverflowing);
+    }
+  };
 
   useEffect(() => {
-    setChildLength(allEvents?.length);
-    setHiddenEvents(allEvents?.slice(2));
+    checkOverflow();
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      window.removeEventListener("resize", checkOverflow);
+    };
   }, [allEvents]);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(checkOverflow);
+
+    observer.observe(eventsContainer.current!);
+  }, []);
 
   return (
     <>
@@ -45,7 +65,7 @@ export default function Day({
             +
           </button>
         </div>
-        <div className="events" ref={eventsOverflow}>
+        <div className="events" ref={eventsContainer}>
           {allEvents?.map((event, key) => (
             <DayEvent
               key={key}
@@ -59,37 +79,34 @@ export default function Day({
             />
           ))}
         </div>
-        {childLength && childLength > 2 ? (
+        {showMoreButton && (
           <button
             className="events-view-more-btn"
             onClick={() => setShowMore(true)}
           >
             +{amount} More
           </button>
-        ) : (
-          ""
         )}
       </div>
-      {showMore && hiddenEvents && (
+      {showMore && (
         <HiddenEvents setIsOpen={setShowMore} currentDate={currentDate}>
-          {hiddenEvents.map((event, key) =>
-            event.allDay ? (
-              <button
+          {allEvents &&
+            allEvents.map((event, key) => (
+              <DayEvent
                 key={key}
-                className={`all-day-event ${event.color} event`}
-              >
-                <div className="event-name">{event.name}</div>
-              </button>
-            ) : (
-              <button key={key} className="event">
-                <div className={`color-dot ${event.color}`}></div>
-                <div className="event-time">10am</div>
-                <div className="event-name">{event.name}</div>
-              </button>
-            )
-          )}
+                id={event.id}
+                name={event.name}
+                startTime={event.startTime}
+                endTime={event.endTime}
+                color={event.color}
+                allDay={event.allDay}
+                currentDate={event.currentDate}
+              />
+            ))}
         </HiddenEvents>
       )}
+
+      {}
 
       {IsOpen && (
         <Modal

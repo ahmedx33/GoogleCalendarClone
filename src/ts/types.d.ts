@@ -27,7 +27,7 @@ type EventType = {
     startTime: string,
     endTime: string,
     color: Color | null,
-    currentDate: Date | null,
+    currentDate: number,
 }
 
 type EventContext = {
@@ -43,7 +43,7 @@ type EditEventType = {
     endTime: string,
     color: Color | null,
     IsOpen: boolean,
-    currentDate: Date | null,
+    currentDate: EventType["currentDate"]  ,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
 }
 

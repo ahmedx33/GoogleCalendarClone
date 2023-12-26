@@ -51,7 +51,7 @@ export default function EditEventModal({
         <div className="modal-body">
           <div className="modal-title">
             <div>Edit Event</div>
-            <small>{format(currentDate as Date, "d/MM/yyyy")}</small>
+            <small>{format(new Date(currentDate), "d/MM/yyyy")}</small>
             <button className="close-btn" onClick={() => setIsOpen!(false)}>
               &times;
             </button>

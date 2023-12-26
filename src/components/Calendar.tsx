@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -13,12 +13,25 @@ import {
 import Day from "./Day";
 import { EventContext, EventType } from "../ts/types";
 
-// import { Color } from "../types/types";
 export const Events = createContext<EventContext | null>(null);
 
 export default function Calendar() {
   const [date, setDate] = useState<Date | null>(new Date());
   const [events, setEvents] = useState<EventType[] | null>([]);
+  useEffect(() => {
+    if (localStorage.getItem("events") === null && events?.length === 0) {
+      localStorage.setItem("events", JSON.stringify([]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const data: EventType[] = JSON.parse(`${localStorage.getItem("events")}`);
+    if (events?.length !== 0)
+      return localStorage.setItem("events", JSON.stringify(events));
+    setEvents(data);
+  }, [events]);
+
   const days = useMemo(
     () =>
       eachDayOfInterval({
@@ -53,7 +66,6 @@ export default function Calendar() {
             {format(date as Date, "MMMM")} {date?.getFullYear()}
           </span>
         </div>
-
         <Events.Provider value={{ events, setEvents }}>
           <div className="days">
             {days.map((day, index) => (
@@ -66,9 +78,11 @@ export default function Calendar() {
                 dayNumber={day.getDate()}
                 sameMonth={isSameMonth(day, date as Date)}
                 currentDate={day}
-                allEvents={events!.filter(
-                  (ev) => ev.currentDate?.getTime() === day.getTime()
-                )}
+                
+                allEvents={
+                  events &&
+                  events.filter((ev) => ev.currentDate === day.getTime())
+                }
               />
             ))}
           </div>

@@ -17,16 +17,16 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
 
   function eventHandler(ev: React.MouseEvent<HTMLButtonElement>) {
     ev.preventDefault();
-    const [startHour, startMin]: string[] = startTime.current?.value.split(
+    const [startHour]: string[] = startTime.current?.value.split(
       ":"
     ) as string[];
-    const [endHour, endMin]: string[] = endTime.current?.value.split(
-      ":"
-    ) as string[];
+    const [endHour]: string[] = endTime.current?.value.split(":") as string[];
     if (inputRef.current?.value === "") return;
 
     if (inputRef.current && inputRef.current.value !== null) {
-      if (startHour > endHour || (startHour === endHour && startMin > endMin)) {
+      if (startHour > endHour) {
+        alert("please");
+
         return;
       }
 
@@ -42,7 +42,7 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
               endTime: endHour,
               color,
               allDay,
-              currentDate,
+              currentDate: currentDate?.getTime(),
               setColor,
             },
           ] as EventType[])
