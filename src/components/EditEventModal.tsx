@@ -19,6 +19,8 @@ export default function EditEventModal({
   const { setEvents } = useEvents();
   const [newColor, setNewColor] = useState<Color | null>(color);
   const inputRef = useRef<HTMLInputElement>(null);
+  const newStartTime = useRef<HTMLInputElement>(null);
+  const newEndTime = useRef<HTMLInputElement>(null);
 
   function editEventHandler(ev: MouseEvent<HTMLButtonElement>) {
     ev.preventDefault();
@@ -28,8 +30,8 @@ export default function EditEventModal({
       allDay: check,
       color: newColor,
       currentDate,
-      startTime,
-      endTime,
+      startTime: newStartTime.current?.value as string,
+      endTime: newEndTime.current?.value as string,
     };
     setEvents((ev) =>
       ev!.map((event) => (event.id === id ? eventDate : event))
@@ -82,6 +84,7 @@ export default function EditEventModal({
                 <label htmlFor="start-time">Start Time</label>
                 <input
                   disabled={check}
+                  ref={newStartTime}
                   defaultValue={startTime}
                   type="time"
                   name="start-time"
@@ -92,6 +95,7 @@ export default function EditEventModal({
                 <label htmlFor="end-time">End Time</label>
                 <input
                   disabled={check}
+                  ref={newEndTime}
                   defaultValue={endTime}
                   type="time"
                   name="end-time"

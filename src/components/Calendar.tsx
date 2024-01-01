@@ -20,7 +20,7 @@ export default function Calendar() {
   const [events, setEvents] = useState<EventType[] | null>([]);
   useEffect(() => {
     if (localStorage.getItem("events") === null && events?.length === 0) {
-      localStorage.setItem("events", JSON.stringify([]));
+      localStorage.setItem("events", "[]");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -78,7 +78,6 @@ export default function Calendar() {
                 dayNumber={day.getDate()}
                 sameMonth={isSameMonth(day, date as Date)}
                 currentDate={day}
-                
                 allEvents={
                   events &&
                   events.filter((ev) => ev.currentDate === day.getTime())

@@ -12,9 +12,6 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
   const startTime = useRef<HTMLInputElement>(null);
   const endTime = useRef<HTMLInputElement>(null);
 
-  const startH = startTime.current?.value;
-  const endH = endTime.current?.value;
-
   function eventHandler(ev: React.MouseEvent<HTMLButtonElement>) {
     ev.preventDefault();
     const [startHour]: string[] = startTime.current?.value.split(
@@ -38,8 +35,8 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
             {
               id: Date.now(),
               name: inputRef.current!.value,
-              startTime: startHour,
-              endTime: endHour,
+              startTime: startTime.current?.value,
+              endTime: endTime.current?.value,
               color,
               allDay,
               currentDate: currentDate?.getTime(),
@@ -83,7 +80,7 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
                 <label htmlFor="start-time">Start Time</label>
                 <input
                   disabled={allDay}
-                  defaultValue={startH}
+                  defaultValue={startTime.current?.value}
                   ref={startTime}
                   type="time"
                   name="start-time"
@@ -94,7 +91,7 @@ export default function Modal({ isOpen, setIsOpen, currentDate }: ModalType) {
                 <label htmlFor="end-time">End Time</label>
                 <input
                   disabled={allDay}
-                  defaultValue={endH}
+                  defaultValue={startTime.current?.value}
                   ref={endTime}
                   type="time"
                   name="end-time"

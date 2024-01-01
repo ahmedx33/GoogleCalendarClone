@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {  useLayoutEffect, useRef, useState } from "react";
 import { DayType } from "../ts/types";
 import Modal from "./Modal";
 import DayEvent from "./DayEvent";
@@ -31,7 +31,6 @@ export default function Day({
   };
 
   useLayoutEffect(() => {
-    checkOverflow();
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
 

@@ -24,7 +24,7 @@ type EventType = {
     id: number | string | Date | null,
     name: string,
     allDay: boolean,
-    startTime: string,
+    startTime: string ,
     endTime: string,
     color: Color | null,
     currentDate: number,
